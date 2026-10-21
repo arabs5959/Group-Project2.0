@@ -1,0 +1,52 @@
+import time
+from machine import Pin, time_pulse_us, PWM, ADC, I2C, UART,
+
+
+# I2C signal pins
+I2C_SDA = 14
+I2C_SCL = 15
+
+# ADS 1015 configuration information
+ADS1015_ADDR = 0x48
+ADS1015_PWM = 2     # port 2 has (low-pass filtered) PWM signal
+
+# You will need to upload the file ads1x15.py to the pico for the following code to work properly
+from ads1x15 import ADS1015
+
+i2c = I2C(1, sda=Pin(I2C_SDA), scl=Pin(I2C_SCL))
+adc = ADS1015(i2c, ADS1015_ADDR, 1)
+
+# scan i2c bus to get a listing of all I2C devices... including the ADC that has the servo feedback values
+addresses = i2c.scan()
+for address in addresses:
+	print(hex(address))
+
+#Set up PWM Pins:
+PWM_OUT_PIN = 11 #put on pico one so we start by sending on board one
+PWM_IN_PIN  = 15  # put on second board to read on second board. Also the pin hee
+#also pin 15 has the profs adc reader
+#Create a PWM on pin 4
+pwm = PWM(Pin(PWM_OUT_PIN)) #just setting up a PWM for later
+freq =pwm.freq(50) #Set the freqency 
+duty = pwm.duty_u16(32768) #Set the duty. Will set on board one and send to baord two to compare
+uart = UART(1, baudrate=9600, tx=Pin(8), rx=Pin(9)) 
+uart.init(9600, bits=8, parity=None, stop=1)
+payload = str(duty) + '\n'
+    
+    # 4. Write the data to the UART buffer
+uart.write(bytes(payload, 'utf-8'))     
+print(f"Sent duty cycle: {duty}")
+time.sleep(2)
+if uart.any():
+	data = uart.read()
+# Read filtered PWM input from the header
+value = adc.read(0, ADS1015_PWM) #if the adc gets anything in pin 15 spits out what the duty should be acording to the space between votlages
+print(value)
+print(payload)
+print(data)
+
+
+
+
+
+
