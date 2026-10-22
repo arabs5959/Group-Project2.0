@@ -28,6 +28,6 @@ if uart.any():
 	data = uart.read()
 # Read filtered PWM input from the header
 value = adc.read(0, ADS1015_PWM) #if the adc gets anything in pin 15 spits out what the duty should be acording to the space between votlages
-uart.write(data)
+uart.write(value)
 print(value)
 print(data)
