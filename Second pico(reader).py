@@ -23,10 +23,11 @@ for address in addresses:
 
 uart = UART(1, baudrate=9600, tx=Pin(8), rx=Pin(9)) 
 uart.init(9600, bits=8, parity=None, stop=1)
-    
+
 if uart.any():
 	data = uart.read()
 # Read filtered PWM input from the header
 value = adc.read(0, ADS1015_PWM) #if the adc gets anything in pin 15 spits out what the duty should be acording to the space between votlages
+uart.write(data)
 print(value)
 print(data)

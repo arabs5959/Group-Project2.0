@@ -30,3 +30,4 @@ if uart.any():
 value = adc.read(0, ADS1015_PWM) #if the adc gets anything in pin 15 spits out what the duty should be acording to the space between votlages
 print(value)
 print(data)
+#created on 10-21. does not work. I cannot belive it

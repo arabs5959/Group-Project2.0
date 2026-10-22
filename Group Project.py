@@ -28,7 +28,8 @@ PWM_IN_PIN  = 15  # put on second board to read on second board. Also the pin he
 #Create a PWM on pin 4
 pwm = PWM(Pin(PWM_OUT_PIN)) #just setting up a PWM for later
 freq =pwm.freq(50) #Set the freqency 
-duty = pwm.duty_u16(32768) #Set the duty. Will set on board one and send to baord two to compare
+duty = 32768
+pwm.duty_u16(32768) #Set the duty. Will set on board one and send to baord two to compare
 uart = UART(1, baudrate=9600, tx=Pin(8), rx=Pin(9)) 
 uart.init(9600, bits=8, parity=None, stop=1)
 payload = str(duty) + '\n'
@@ -39,14 +40,22 @@ print(f"Sent duty cycle: {duty}")
 time.sleep(2)
 if uart.any(): #This is now useless if run with second pico. Will keep if needing to check. Just keeping it because it could be useful for testing on single board
 	data = uart.read()
+	data = b'\x00\xff' #THIS IS FROM AI
+result = int.from_bytes(data, byteorder='big')
 # Read filtered PWM input from the header
 value = adc.read(0, ADS1015_PWM) #if the adc gets anything in pin 15 spits out what the duty should be acording to the space between votlages
-print(value)
+print(result)
 print(payload)
 print(data)
 #20-20-26: does not work. do not know why
 #20-21-26: from further testing still do not know why
-
+if result > duty: #When pico one gets the value back it compares them and says the diffrence
+	print("The orginal was set to ", duty, "the adc reader saw that the duty was", result, "the diffrence is", result - duty)
+elif result < duty:
+	print("The orginal was set to ", duty, "the adc reader saw that the duty was" result, "the diffrence is", duty- result)
+else:
+	print (	print("The orginal was set to ", duty, "the adc reader saw that the duty was", result, "the values are the same", result-duty )
+ )
 
 
 
