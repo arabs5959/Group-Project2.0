@@ -37,14 +37,15 @@ payload = str(duty) + '\n'
 uart.write(bytes(payload, 'utf-8'))     
 print(f"Sent duty cycle: {duty}")
 time.sleep(2)
-if uart.any(): #This is now useless if run with second pico. Will keep if needing to check
+if uart.any(): #This is now useless if run with second pico. Will keep if needing to check. Just keeping it because it could be useful for testing on single board
 	data = uart.read()
 # Read filtered PWM input from the header
 value = adc.read(0, ADS1015_PWM) #if the adc gets anything in pin 15 spits out what the duty should be acording to the space between votlages
 print(value)
 print(payload)
 print(data)
-
+#20-20-26: does not work. do not know why
+#20-21-26: from further testing still do not know why
 
 
 
