@@ -1,24 +1,25 @@
-# I2C signal pins
-I2C_SDA = 14
-I2C_SCL = 15
-
-# ADS 1015 configuration information
-ADS1015_ADDR = 0x48
-ADS1015_PWM = 2     # port 2 has (low-pass filtered) PWM signal
-
-from machine import Pin, ADC, I2C
-# You will need to upload the file ads1x15.py to the pico for the following code to work properly
+from machine import I2C, Pin
 from ads1x15 import ADS1015
 
-i2c = I2C(1, sda=Pin(I2C_SDA), scl=Pin(I2C_SCL))
-adc = ADS1015(i2c, ADS1015_ADDR, 1)
 
-# scan i2c bus to get a listing of all I2C devices... including the ADC that has the servo feedback values
-addresses = i2c.scan()
-for address in addresses:
-	print(hex(address))
+I2C_SDA_PIN = 14
+I2C_SCL_PIN = 15
+ADS1015_ADDR = 0x48
+ADS1015_PWM_CH = 2
+REFERENCE_VOLTAGE = 3.3
 
 
-# Read filtered PWM input from the header
-value = adc.read(0, ADS1015_PWM)
-print(value)
+def main():
+    #Scan I2C bus and print raw counts, voltage, and % of 3.3 V.
+    i2c = I2C(1, sda=Pin(I2C_SDA_PIN), scl=Pin(I2C_SCL_PIN))
+    print("I2C scan:", [hex(addr) for addr in i2c.scan()])
+
+    adc = ADS1015(i2c, ADS1015_ADDR, 1)
+    raw = adc.read(4, ADS1015_PWM_CH)
+    volts = adc.raw_to_v(raw)
+    pct = (volts / REFERENCE_VOLTAGE) * 100.0
+    print(f"raw={raw}, voltage={volts:.3f} V, duty_pct={pct:.2f}%")
+
+
+if __name__ == "__main__":
+    main()
